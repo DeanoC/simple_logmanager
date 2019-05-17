@@ -2,6 +2,7 @@
 #ifndef UTILS_SIMPLE_LOGMANAGER_LOGMANAGER_H
 #define UTILS_SIMPLE_LOGMANAGER_LOGMANAGER_H
 
+#include "al2o3_platform/platform.h"
 typedef void* SimpleLogManager_Handle;
 
 AL2O3_EXTERN_C SimpleLogManager_Handle SimpleLogManager_Alloc();
