@@ -1,4 +1,5 @@
 #include "al2o3_platform/platform.h"
+#include "al2o3_memory/memory.h"
 #include "al2o3_os/file.h"
 #include "al2o3_os/filesystem.h"
 #include "al2o3_os/thread.h"
@@ -91,11 +92,11 @@ static void SimpleLogManager_Msg(SimpleLogManager_Handle handle, char const *lev
 AL2O3_EXTERN_C SimpleLogManager_Handle SimpleLogManager_Alloc() {
 	ASSERT(SimpleLogManagerSingleton == NULL);
 
-	SimpleLogManager* logManager = (SimpleLogManager*) calloc(1, sizeof(SimpleLogManager));
+	SimpleLogManager* logManager = (SimpleLogManager*) MEMORY_CALLOC(1, sizeof(SimpleLogManager));
 	if(logManager == NULL) return NULL;
 
 	if( Os_MutexCreate(&logManager->logMutex) == false) {
-		free(logManager);
+		MEMORY_FREE(logManager);
 		return NULL;
 	};
 	
@@ -132,7 +133,7 @@ AL2O3_EXTERN_C void SimpleLogManager_Free(SimpleLogManager_Handle handle) {
 	SimpleLogManager_CloseLogFile(handle);
 	memcpy(&AL2O3_Logger, &logManager->oldLogger, sizeof(AL2O3_Logger_t));
 	Os_MutexDestroy(&logManager->logMutex);
-	free(logManager);
+	MEMORY_FREE(logManager);
 
 	SimpleLogManagerSingleton = NULL;
 }
