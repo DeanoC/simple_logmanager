@@ -290,5 +290,15 @@ void SimpleLogManager_FailedAssert(char const *file, int line, const char *funct
 	ASSERT(SimpleLogManagerSingleton);
 	if (SimpleLogManager_IsFailedAssertQuiet(SimpleLogManagerSingleton)) { return; }
 
-	SimpleLogManager_Msg(SimpleLogManagerSingleton, "ASSERT", file, line, function, msg);
+	// asserts always want file line etc. even if turned off
+	if (file != NULL && SimpleLogManagerSingleton->fileLineQuiet == true) {
+		char buffer[2048]; // TODO potential buffer overrun!
+
+		sprintf(buffer, "%s(%i) - %s: %s", file, line, function, msg);
+		SimpleLogManager_Msg(SimpleLogManagerSingleton, "ASSERT", file, line, function, buffer);
+	}
+	else
+	{
+		SimpleLogManager_Msg(SimpleLogManagerSingleton, "ASSERT", file, line, function, msg);
+	}
 }
