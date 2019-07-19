@@ -45,7 +45,7 @@ typedef struct SimpleLogManager {
 	AL2O3_Logger_t oldLogger;
 	AL2O3_Logger_t logger;
 
-	char lastMessage[2048];
+	char lastMessage[1024 * 64];
 	char filePath[2048];
 
 } SimpleLogManager;
