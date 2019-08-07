@@ -3,5 +3,7 @@
 #include "al2o3_memory/memory.h"
 
 int main(int argc, char const *argv[]) {
-	return Catch::Session().run(argc, (char**)argv);
+	auto ret = Catch::Session().run(argc, (char**)argv);
+	return ret;
+
 }
