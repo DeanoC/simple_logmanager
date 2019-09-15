@@ -157,9 +157,9 @@ AL2O3_EXTERN_C void SimpleLogManager_UseFileForLog(SimpleLogManager_Handle handl
 	logManager->logFile = Os_FileOpen(fileName, Os_FM_Write);
 	if (logManager->logFile != 0 && Os_FileIsOpen(logManager->logFile)) {
 		strcpy(logManager->filePath, fileName);
-		LOGINFOF("Opened log file %s", fileName);
+		LOGINFO("Opened log file %s", fileName);
 	} else {
-		LOGERRORF("Failed to create log file %s", fileName);
+		LOGERROR("Failed to create log file %s", fileName);
 	}
 }
 
