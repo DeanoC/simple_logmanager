@@ -64,7 +64,7 @@ static void SimpleLogManager_Msg(SimpleLogManager_Handle handle, char const *lev
 	}
 
 	if (logManager->recordTimestamp) {
-		char buffer2[sizeof(logManager->lastMessage)]; // TODO potential buffer overrun!
+		char buffer2[sizeof(logManager->lastMessage) + 256 + 2]; // TODO potential buffer overrun!
 		char timeBuf[256];
 		GetTimeStamp(timeBuf);
 		sprintf(buffer2, "[%s] %s", timeBuf, buffer);
