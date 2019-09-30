@@ -35,7 +35,10 @@ typedef struct SimpleLogManager {
 
 	bool recordTimestamp;
 
-	bool fileLineQuiet;
+	bool infoFileLineQuiet;
+	bool warningFileLineQuiet;
+	bool errorFileLineQuiet;
+
 	bool infoQuiet;
 	bool warningQuiet;
 	bool errorQuiet;
@@ -52,12 +55,18 @@ typedef struct SimpleLogManager {
 
 SimpleLogManager* SimpleLogManagerSingleton;
 
-static void SimpleLogManager_Msg(SimpleLogManager_Handle handle, char const *level, char const *file, int line, const char *function, char const *msg) {
+static void SimpleLogManager_Msg(SimpleLogManager_Handle handle,
+																 bool fileLineQuiet,
+																 char const *level,
+																 char const *file,
+																 int line,
+																 const char *function,
+																 char const *msg) {
 	ASSERT(handle != NULL);
-	SimpleLogManager* logManager = (SimpleLogManager*)handle;
+	SimpleLogManager *logManager = (SimpleLogManager *) handle;
 
 	char buffer[sizeof(logManager->lastMessage)]; // TODO potential buffer overrun!
-	if (file != NULL && logManager->fileLineQuiet == false) {
+	if (file != NULL && fileLineQuiet == false) {
 		sprintf(buffer, "%s: %s(%i) - %s: %s\n", level, file, line, function, msg);
 	} else {
 		sprintf(buffer, "%s: %s\n", level, msg);
@@ -102,7 +111,7 @@ AL2O3_EXTERN_C SimpleLogManager_Handle SimpleLogManager_Alloc() {
 	
 	char const logFilename[] = "log.log";
 	Os_GetCurrentDir(logManager->filePath, sizeof(logManager->filePath));
-	ASSERT( strlen(logManager->filePath) + sizeof(logFilename) < sizeof(logManager->filePath));
+	ASSERT(strlen(logManager->filePath) + sizeof(logFilename) < sizeof(logManager->filePath));
 	strcat(logManager->filePath, logFilename);
 	logManager->logFile = Os_FileOpen(logManager->filePath, Os_FM_Write);
 
@@ -112,7 +121,10 @@ AL2O3_EXTERN_C SimpleLogManager_Handle SimpleLogManager_Alloc() {
 	logManager->errorQuiet = false;
 	logManager->failedAssertQuiet = false;
 	logManager->debugMsgQuiet = false;
-	logManager->fileLineQuiet = true;
+
+	logManager->infoFileLineQuiet = true;
+	logManager->warningFileLineQuiet = false;
+	logManager->errorFileLineQuiet = false;
 
 	logManager->logger.errorMsg = &SimpleLogManager_ErrorMsg;
 	logManager->logger.warningMsg = &SimpleLogManager_WarningMsg;
@@ -121,7 +133,7 @@ AL2O3_EXTERN_C SimpleLogManager_Handle SimpleLogManager_Alloc() {
 	logManager->logger.failedAssert = &SimpleLogManager_FailedAssert;
 	memcpy(&logManager->oldLogger, &AL2O3_Logger, sizeof(AL2O3_Logger_t));
 	memcpy(&AL2O3_Logger, &logManager->logger, sizeof(AL2O3_Logger_t));
-	SimpleLogManagerSingleton  = logManager;
+	SimpleLogManagerSingleton = logManager;
 
 	return logManager;
 }
@@ -175,38 +187,64 @@ AL2O3_EXTERN_C void SimpleLogManager_CloseLogFile(SimpleLogManager_Handle handle
 
 AL2O3_EXTERN_C void SimpleLogManager_SetRecordTimeStamp(SimpleLogManager_Handle handle, bool enable) {
 	ASSERT(handle != NULL);
-	SimpleLogManager* logManager = (SimpleLogManager*)handle;
+	SimpleLogManager *logManager = (SimpleLogManager *) handle;
 	logManager->recordTimestamp = enable;
 }
 
 AL2O3_EXTERN_C bool SimpleLogManager_GetRecordTimeStamp(SimpleLogManager_Handle handle) {
 	ASSERT(handle != NULL);
-	SimpleLogManager* logManager = (SimpleLogManager*)handle;
+	SimpleLogManager *logManager = (SimpleLogManager *) handle;
 	return logManager->recordTimestamp;
 }
 
-AL2O3_EXTERN_C void SimpleLogManager_SetFileLineQuiet(SimpleLogManager_Handle handle, bool enable) {
+AL2O3_EXTERN_C void SimpleLogManager_SetInfoFileLineQuiet(SimpleLogManager_Handle handle, bool enable) {
 	ASSERT(handle != NULL);
-	SimpleLogManager* logManager = (SimpleLogManager*)handle;
-	logManager->fileLineQuiet = enable;
+	SimpleLogManager *logManager = (SimpleLogManager *) handle;
+	logManager->infoFileLineQuiet = enable;
 
 }
 
-AL2O3_EXTERN_C bool SimpleLogManager_IsFileLineQuiet(SimpleLogManager_Handle handle) {
+AL2O3_EXTERN_C bool SimpleLogManager_IsInfoFileLineQuiet(SimpleLogManager_Handle handle) {
 	ASSERT(handle != NULL);
-	SimpleLogManager* logManager = (SimpleLogManager*)handle;
-	return logManager->fileLineQuiet;
+	SimpleLogManager *logManager = (SimpleLogManager *) handle;
+	return logManager->infoFileLineQuiet;
+}
+
+AL2O3_EXTERN_C void SimpleLogManager_SetWarningFileLineQuiet(SimpleLogManager_Handle handle, bool enable) {
+	ASSERT(handle != NULL);
+	SimpleLogManager *logManager = (SimpleLogManager *) handle;
+	logManager->warningFileLineQuiet = enable;
+
+}
+
+AL2O3_EXTERN_C bool SimpleLogManager_IsWarningFileLineQuiet(SimpleLogManager_Handle handle) {
+	ASSERT(handle != NULL);
+	SimpleLogManager *logManager = (SimpleLogManager *) handle;
+	return logManager->warningFileLineQuiet;
+}
+
+AL2O3_EXTERN_C void SimpleLogManager_SetErrorFileLineQuiet(SimpleLogManager_Handle handle, bool enable) {
+	ASSERT(handle != NULL);
+	SimpleLogManager *logManager = (SimpleLogManager *) handle;
+	logManager->errorFileLineQuiet = enable;
+
+}
+
+AL2O3_EXTERN_C bool SimpleLogManager_IsErrorFileLineQuiet(SimpleLogManager_Handle handle) {
+	ASSERT(handle != NULL);
+	SimpleLogManager *logManager = (SimpleLogManager *) handle;
+	return logManager->errorFileLineQuiet;
 }
 
 AL2O3_EXTERN_C void SimpleLogManager_SetInfoQuiet(SimpleLogManager_Handle handle, bool enable) {
 	ASSERT(handle != NULL);
-	SimpleLogManager* logManager = (SimpleLogManager*)handle;
+	SimpleLogManager *logManager = (SimpleLogManager *) handle;
 	logManager->infoQuiet = enable;
 }
 
 AL2O3_EXTERN_C bool SimpleLogManager_IsInfoQuiet(SimpleLogManager_Handle handle) {
 	ASSERT(handle != NULL);
-	SimpleLogManager* logManager = (SimpleLogManager*)handle;
+	SimpleLogManager *logManager = (SimpleLogManager *) handle;
 	return logManager->infoQuiet;
 }
 
@@ -260,45 +298,64 @@ AL2O3_EXTERN_C bool SimpleLogManager_IsDebugMsgQuiet(SimpleLogManager_Handle han
 
 void SimpleLogManager_InfoMsg(char const *file, int line, const char *function, char const *msg) {
 	ASSERT(SimpleLogManagerSingleton);
-	if (SimpleLogManager_IsInfoQuiet(SimpleLogManagerSingleton)) { return; }
+	if (SimpleLogManager_IsInfoQuiet(SimpleLogManagerSingleton)) {
+		return;
+	}
 
-	SimpleLogManager_Msg(SimpleLogManagerSingleton, "INFO ", file, line, function, msg);
+	SimpleLogManager_Msg(SimpleLogManagerSingleton,
+											 SimpleLogManagerSingleton->infoFileLineQuiet,
+											 "INFO ",
+											 file,
+											 line,
+											 function,
+											 msg);
 }
 
 void SimpleLogManager_WarningMsg(char const *file, int line, const char *function, char const *msg) {
 	ASSERT(SimpleLogManagerSingleton);
-	if (SimpleLogManager_IsWarningQuiet(SimpleLogManagerSingleton)) { return; }
+	if (SimpleLogManager_IsWarningQuiet(SimpleLogManagerSingleton)) {
+		return;
+	}
 
-	SimpleLogManager_Msg(SimpleLogManagerSingleton, "WARN ", file, line, function, msg);
+	SimpleLogManager_Msg(SimpleLogManagerSingleton,
+											 SimpleLogManagerSingleton->warningFileLineQuiet,
+											 "WARN ",
+											 file,
+											 line,
+											 function,
+											 msg);
 }
 
 void SimpleLogManager_ErrorMsg(char const *file, int line, const char *function, char const *msg) {
 	ASSERT(SimpleLogManagerSingleton);
-	if (SimpleLogManager_IsErrorQuiet(SimpleLogManagerSingleton)) { return; }
+	if (SimpleLogManager_IsErrorQuiet(SimpleLogManagerSingleton)) {
+		return;
+	}
 
-	SimpleLogManager_Msg(SimpleLogManagerSingleton, "ERROR", file, line, function, msg);
+	SimpleLogManager_Msg(SimpleLogManagerSingleton,
+											 SimpleLogManagerSingleton->errorFileLineQuiet,
+											 "ERROR",
+											 file,
+											 line,
+											 function,
+											 msg);
 }
 
 void SimpleLogManager_DebugMsg(char const *file, int line, const char *function, char const *msg) {
 	ASSERT(SimpleLogManagerSingleton);
-	if (SimpleLogManager_IsDebugMsgQuiet(SimpleLogManagerSingleton)) { return; }
+	if (SimpleLogManager_IsDebugMsgQuiet(SimpleLogManagerSingleton)) {
+		return;
+	}
 
-	SimpleLogManager_Msg(SimpleLogManagerSingleton, "DEBUG", file, line, function, msg);
+	SimpleLogManager_Msg(SimpleLogManagerSingleton, false, "DEBUG", file, line, function, msg);
 }
 
 void SimpleLogManager_FailedAssert(char const *file, int line, const char *function, char const *msg) {
 	ASSERT(SimpleLogManagerSingleton);
-	if (SimpleLogManager_IsFailedAssertQuiet(SimpleLogManagerSingleton)) { return; }
+	if (SimpleLogManager_IsFailedAssertQuiet(SimpleLogManagerSingleton)) {
+		return;
+	}
 
 	// asserts always want file line etc. even if turned off
-	if (file != NULL && SimpleLogManagerSingleton->fileLineQuiet == true) {
-		char buffer[2048]; // TODO potential buffer overrun!
-
-		sprintf(buffer, "%s(%i) - %s: %s", file, line, function, msg);
-		SimpleLogManager_Msg(SimpleLogManagerSingleton, "ASSERT", file, line, function, buffer);
-	}
-	else
-	{
-		SimpleLogManager_Msg(SimpleLogManagerSingleton, "ASSERT", file, line, function, msg);
-	}
+	SimpleLogManager_Msg(SimpleLogManagerSingleton, false, "ASSERT", file, line, function, msg);
 }
