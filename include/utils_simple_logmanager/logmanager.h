@@ -20,11 +20,16 @@ AL2O3_EXTERN_C void SimpleLogManager_SetInfoQuiet(SimpleLogManager_Handle handle
 AL2O3_EXTERN_C void SimpleLogManager_SetWarningQuiet(SimpleLogManager_Handle handle, bool quiet);
 AL2O3_EXTERN_C void SimpleLogManager_SetErrorQuiet(SimpleLogManager_Handle handle, bool quiet);
 AL2O3_EXTERN_C void SimpleLogManager_SetDebugMsgQuiet(SimpleLogManager_Handle handle, bool quiet);
-AL2O3_EXTERN_C void SimpleLogManager_SetFailedAssertQuiet(SimpleLogManager_Handle handle, bool quiet);
 AL2O3_EXTERN_C bool SimpleLogManager_IsInfoQuiet(SimpleLogManager_Handle handle);
 AL2O3_EXTERN_C bool SimpleLogManager_IsWarningQuiet(SimpleLogManager_Handle handle);
 AL2O3_EXTERN_C bool SimpleLogManager_IsErrorQuiet(SimpleLogManager_Handle handle);
 AL2O3_EXTERN_C bool SimpleLogManager_IsDebugMsgQuiet(SimpleLogManager_Handle handle);
-AL2O3_EXTERN_C bool SimpleLogManager_IsFailedAssertQuiet(SimpleLogManager_Handle handle);
+
+AL2O3_EXTERN_C void SimpleLogManager_SetInfoFileLineQuiet(SimpleLogManager_Handle handle, bool enable);
+AL2O3_EXTERN_C bool SimpleLogManager_IsInfoFileLineQuiet(SimpleLogManager_Handle handle);
+AL2O3_EXTERN_C void SimpleLogManager_SetWarningFileLineQuiet(SimpleLogManager_Handle handle, bool enable);
+AL2O3_EXTERN_C bool SimpleLogManager_IsWarningFileLineQuiet(SimpleLogManager_Handle handle);
+AL2O3_EXTERN_C void SimpleLogManager_SetErrorFileLineQuiet(SimpleLogManager_Handle handle, bool enable);
+AL2O3_EXTERN_C bool SimpleLogManager_IsErrorFileLineQuiet(SimpleLogManager_Handle handle);
 
 #endif //UTILS_SIMPLE_LOGMANAGER_LOGMANAGER_H

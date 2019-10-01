@@ -24,19 +24,19 @@ TEST_CASE("Quiet settings", "[SimpleLogManager]") {
 	REQUIRE(!SimpleLogManager_IsWarningFileLineQuiet(slm));
 	REQUIRE(!SimpleLogManager_IsErrorFileLineQuiet(slm));
 
-	SimpleLogManager_SetInfoFailedAssertQuiet(slm, true);
-	REQUIRE(SimpleLogManager_IsInfoFailedAssertQuiet(slm));
-	SimpleLogManager_SetWarningFailedAssertQuiet(slm, true);
-	REQUIRE(SimpleLogManager_IsWarningFailedAssertQuiet(slm));
-	SimpleLogManager_SetErrortFailedAssertQuiet(slm, true);
-	REQUIRE(SimpleLogManager_IsErrorFailedAssertQuiet(slm));
+	SimpleLogManager_SetInfoFileLineQuiet(slm, true);
+	REQUIRE(SimpleLogManager_IsInfoFileLineQuiet(slm));
+	SimpleLogManager_SetWarningFileLineQuiet(slm, true);
+	REQUIRE(SimpleLogManager_IsWarningFileLineQuiet(slm));
+	SimpleLogManager_SetErrorFileLineQuiet(slm, true);
+	REQUIRE(SimpleLogManager_IsErrorFileLineQuiet(slm));
 
-	SimpleLogManager_SetInfoFailedAssertQuiet(slm, false);
-	REQUIRE(!SimpleLogManager_IsInfoFailedAssertQuiet(slm));
-	SimpleLogManager_SetWarningFailedAssertQuiet(slm, false);
-	REQUIRE(!SimpleLogManager_IsWarningFailedAssertQuiet(slm));
-	SimpleLogManager_SetErrortFailedAssertQuiet(slm, false);
-	REQUIRE(!SimpleLogManager_IsErrorFailedAssertQuiet(slm));
+	SimpleLogManager_SetInfoFileLineQuiet(slm, false);
+	REQUIRE(!SimpleLogManager_IsInfoFileLineQuiet(slm));
+	SimpleLogManager_SetWarningFileLineQuiet(slm, false);
+	REQUIRE(!SimpleLogManager_IsWarningFileLineQuiet(slm));
+	SimpleLogManager_SetErrorFileLineQuiet(slm, false);
+	REQUIRE(!SimpleLogManager_IsErrorFileLineQuiet(slm));
 
 	SimpleLogManager_SetInfoQuiet(slm, true);
 	SimpleLogManager_SetDebugMsgQuiet(slm, true);
