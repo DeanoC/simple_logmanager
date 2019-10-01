@@ -10,7 +10,7 @@ TEST_CASE("Alloc/Free", "[SimpleLogManager]") {
 	SimpleLogManager_Free(slm);
 }
 
-TEST_CASE("Quiet settings take", "[SimpleLogManager]") {
+TEST_CASE("Quiet settings", "[SimpleLogManager]") {
 	auto slm = SimpleLogManager_Alloc();
 	REQUIRE(slm);
 	// defaults
@@ -19,19 +19,33 @@ TEST_CASE("Quiet settings take", "[SimpleLogManager]") {
 	REQUIRE(!SimpleLogManager_IsDebugMsgQuiet(slm));
 	REQUIRE(!SimpleLogManager_IsErrorQuiet(slm));
 	REQUIRE(!SimpleLogManager_IsWarningQuiet(slm));
-	REQUIRE(SimpleLogManager_IsFileLineQuiet(slm));
-	SimpleLogManager_SetFailedAssertQuiet(slm, true);
+
+	REQUIRE(SimpleLogManager_IsInfoFileLineQuiet(slm));
+	REQUIRE(!SimpleLogManager_IsWarningFileLineQuiet(slm));
+	REQUIRE(!SimpleLogManager_IsErrorFileLineQuiet(slm));
+
+	SimpleLogManager_SetInfoFailedAssertQuiet(slm, true);
+	REQUIRE(SimpleLogManager_IsInfoFailedAssertQuiet(slm));
+	SimpleLogManager_SetWarningFailedAssertQuiet(slm, true);
+	REQUIRE(SimpleLogManager_IsWarningFailedAssertQuiet(slm));
+	SimpleLogManager_SetErrortFailedAssertQuiet(slm, true);
+	REQUIRE(SimpleLogManager_IsErrorFailedAssertQuiet(slm));
+
+	SimpleLogManager_SetInfoFailedAssertQuiet(slm, false);
+	REQUIRE(!SimpleLogManager_IsInfoFailedAssertQuiet(slm));
+	SimpleLogManager_SetWarningFailedAssertQuiet(slm, false);
+	REQUIRE(!SimpleLogManager_IsWarningFailedAssertQuiet(slm));
+	SimpleLogManager_SetErrortFailedAssertQuiet(slm, false);
+	REQUIRE(!SimpleLogManager_IsErrorFailedAssertQuiet(slm));
+
 	SimpleLogManager_SetInfoQuiet(slm, true);
 	SimpleLogManager_SetDebugMsgQuiet(slm, true);
 	SimpleLogManager_SetErrorQuiet(slm, true);
 	SimpleLogManager_SetWarningQuiet(slm, true);
-	SimpleLogManager_SetFileLineQuiet(slm, false);
-	REQUIRE(SimpleLogManager_IsFailedAssertQuiet(slm));
 	REQUIRE(SimpleLogManager_IsInfoQuiet(slm));
 	REQUIRE(SimpleLogManager_IsDebugMsgQuiet(slm));
 	REQUIRE(SimpleLogManager_IsErrorQuiet(slm));
 	REQUIRE(SimpleLogManager_IsWarningQuiet(slm));
-	REQUIRE(!SimpleLogManager_IsFileLineQuiet(slm));
 
 	SimpleLogManager_Free(slm);
 }
