@@ -4,6 +4,6 @@
 
 int main(int argc, char const *argv[]) {
 	auto ret = Catch::Session().run(argc, (char**)argv);
+	Memory_TrackerDestroyAndLogLeaks();
 	return ret;
-
 }
