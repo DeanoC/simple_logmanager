@@ -1,5 +1,7 @@
 #include "al2o3_platform/platform.h"
 #include "al2o3_memory/memory.h"
+#include "al2o3_thread/thread.h"
+
 #include "al2o3_os/file.h"
 #include "al2o3_os/filesystem.h"
 #include "al2o3_os/thread.h"
@@ -30,7 +32,7 @@ static void GetTimeStamp(char * outString ) {
 }
 
 typedef struct SimpleLogManager {
-	Os_Mutex_t logMutex;
+	Thread_Mutex logMutex;
 	Os_FileHandle logFile;
 
 	bool recordTimestamp;
@@ -84,7 +86,7 @@ static void SimpleLogManager_Msg(SimpleLogManager_Handle handle,
 	// to short circuit for main thread only output but doing that safe
 	// is involved. If this proves to be a performance bottleneck look
 	// in smarter system.
-	Os_MutexAcquire(&logManager->logMutex);
+	Thread_MutexAcquire(&logManager->logMutex);
 	{
 		strcpy(logManager->lastMessage, buffer);
 
@@ -95,7 +97,7 @@ static void SimpleLogManager_Msg(SimpleLogManager_Handle handle,
 			Os_FileFlush(logManager->logFile);
 		}
 	}
-	Os_MutexRelease(&logManager->logMutex);
+	Thread_MutexRelease(&logManager->logMutex);
 }
 
 AL2O3_EXTERN_C SimpleLogManager_Handle SimpleLogManager_Alloc() {
@@ -104,7 +106,7 @@ AL2O3_EXTERN_C SimpleLogManager_Handle SimpleLogManager_Alloc() {
 	SimpleLogManager* logManager = (SimpleLogManager*) MEMORY_CALLOC(1, sizeof(SimpleLogManager));
 	if(logManager == NULL) return NULL;
 
-	if( Os_MutexCreate(&logManager->logMutex) == false) {
+	if( Thread_MutexCreate(&logManager->logMutex) == false) {
 		MEMORY_FREE(logManager);
 		return NULL;
 	};
@@ -144,7 +146,7 @@ AL2O3_EXTERN_C void SimpleLogManager_Free(SimpleLogManager_Handle handle) {
 
 	SimpleLogManager_CloseLogFile(handle);
 	memcpy(&AL2O3_Logger, &logManager->oldLogger, sizeof(AL2O3_Logger_t));
-	Os_MutexDestroy(&logManager->logMutex);
+	Thread_MutexDestroy(&logManager->logMutex);
 	MEMORY_FREE(logManager);
 
 	SimpleLogManagerSingleton = NULL;
@@ -339,6 +341,7 @@ void SimpleLogManager_ErrorMsg(char const *file, int line, const char *function,
 											 line,
 											 function,
 											 msg);
+	AL2O3_DEBUG_BREAK();
 }
 
 void SimpleLogManager_DebugMsg(char const *file, int line, const char *function, char const *msg) {
@@ -358,4 +361,5 @@ void SimpleLogManager_FailedAssert(char const *file, int line, const char *funct
 
 	// asserts always want file line etc. even if turned off
 	SimpleLogManager_Msg(SimpleLogManagerSingleton, false, "ASSERT", file, line, function, msg);
+	AL2O3_DEBUG_BREAK();
 }
