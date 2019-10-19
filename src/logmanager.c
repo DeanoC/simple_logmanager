@@ -341,7 +341,7 @@ void SimpleLogManager_ErrorMsg(char const *file, int line, const char *function,
 											 line,
 											 function,
 											 msg);
-	AL2O3_DEBUG_BREAK();
+//	AL2O3_DEBUG_BREAK();
 }
 
 void SimpleLogManager_DebugMsg(char const *file, int line, const char *function, char const *msg) {
